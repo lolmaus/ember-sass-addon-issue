@@ -1,57 +1,16 @@
 # ember-sass-addon-issue
 
-This README outlines the details of collaborating on this Ember application.
-A short introduction of this app could easily go here.
+When the the project is built normally, the following happens:
 
-## Prerequisites
+* `app/styles/app.scss` @uses `app/components/my-component`;
+* `app/components/my-component.scss` @uses the `$content` variable from `app/styles/config/themes/current-theme`;
+* `app/styles/config/themes/_current-theme.scss` @forwards `./default`;
+* `app/styles/config/themes/_current-theme.scss` defines the `$content` variable.
 
-You will need the following things properly installed on your computer.
+It works.
 
-* [Git](https://git-scm.com/)
-* [Node.js](https://nodejs.org/)
-* [Yarn](https://yarnpkg.com/)
-* [Ember CLI](https://ember-cli.com/)
-* [Google Chrome](https://google.com/chrome/)
+When the project is built with the `EMBER_THEME=client2` env var (or simply use `yarn client2`), then the in-repo addon `select-sass-theme` should replace `_current-theme.scss` with `_client2.scss`, and the `$content` variable should have different value.
 
-## Installation
+This does not work! The addon successfully manipulates the tree, but this tree is different from what Sass sees.
 
-* `git clone <repository-url>` this repository
-* `cd ember-sass-addon-issue`
-* `yarn install`
-
-## Running / Development
-
-* `ember serve`
-* Visit your app at [http://localhost:4200](http://localhost:4200).
-* Visit your tests at [http://localhost:4200/tests](http://localhost:4200/tests).
-
-### Code Generators
-
-Make use of the many generators for code, try `ember help generate` for more details
-
-### Running Tests
-
-* `ember test`
-* `ember test --server`
-
-### Linting
-
-* `yarn lint`
-* `yarn lint:fix`
-
-### Building
-
-* `ember build` (development)
-* `ember build --environment production` (production)
-
-### Deploying
-
-Specify what it takes to deploy your app.
-
-## Further Reading / Useful Links
-
-* [ember.js](https://emberjs.com/)
-* [ember-cli](https://ember-cli.com/)
-* Development Browser Extensions
-  * [ember inspector for chrome](https://chrome.google.com/webstore/detail/ember-inspector/bmdblncegkenkacieihfhpjfppoconhi)
-  * [ember inspector for firefox](https://addons.mozilla.org/en-US/firefox/addon/ember-inspector/)
+This might be because the `app/components/my-component.scss` file is outside of Sass import paths, and when this file is imported, it is read from the actual filesystem or from another tree, but not the tree that the in-repo addon manipulates on.
