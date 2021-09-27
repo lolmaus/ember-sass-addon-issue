@@ -1,0 +1,5 @@
+@use "app/styles/config/themes/current-theme" as theme;
+
+.MyComponent:after {
+  content: theme.$content;
+}
